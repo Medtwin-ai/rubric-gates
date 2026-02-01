@@ -1,20 +1,38 @@
 % PATH: paper/latex/references.bib
 % PURPOSE: Bibliography for Rubric Gates paper
 
-@article{necula1997proof,
+% ============================================================================
+% PROOF-CARRYING CODE / CERTIFICATES
+% ============================================================================
+
+@inproceedings{necula1997proof,
   title={Proof-carrying code},
   author={Necula, George C},
-  journal={Proceedings of the 24th ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
+  booktitle={Proceedings of the 24th ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
   pages={106--119},
-  year={1997}
+  year={1997},
+  organization={ACM}
 }
 
-@article{mitchell2019model,
+@article{appel2001foundational,
+  title={A foundational proof-carrying code},
+  author={Appel, Andrew W},
+  journal={Logic in Computer Science},
+  pages={247--256},
+  year={2001}
+}
+
+% ============================================================================
+% MODEL CARDS / DATASHEETS / DOCUMENTATION
+% ============================================================================
+
+@inproceedings{mitchell2019model,
   title={Model cards for model reporting},
   author={Mitchell, Margaret and Wu, Simone and Zaldivar, Andrew and Barnes, Parker and Vasserman, Lucy and Hutchinson, Ben and Spitzer, Elena and Raji, Inioluwa Deborah and Gebru, Timnit},
-  journal={Proceedings of the Conference on Fairness, Accountability, and Transparency},
+  booktitle={Proceedings of the Conference on Fairness, Accountability, and Transparency},
   pages={220--229},
-  year={2019}
+  year={2019},
+  organization={ACM}
 }
 
 @article{gebru2021datasheets,
@@ -24,8 +42,24 @@
   volume={64},
   number={12},
   pages={86--92},
-  year={2021}
+  year={2021},
+  publisher={ACM}
 }
+
+@article{arnold2019factsheets,
+  title={FactSheets: Increasing trust in AI services through supplier's declarations of conformity},
+  author={Arnold, Matthew and Bellamy, Rachel KE and Hind, Michael and Houde, Stephanie and Mehta, Sameep and Mojsilovi{\'c}, Aleksandra and Nair, Ravi and Ramamurthy, Karthikeyan Natesan and Olteanu, Alexandra and Piorkowski, David and others},
+  journal={IBM Journal of Research and Development},
+  volume={63},
+  number={4/5},
+  pages={6--1},
+  year={2019},
+  publisher={IBM}
+}
+
+% ============================================================================
+% CONSTITUTIONAL AI / PRINCIPLE-BASED
+% ============================================================================
 
 @article{bai2022constitutional,
   title={Constitutional AI: Harmlessness from AI Feedback},
@@ -34,28 +68,78 @@
   year={2022}
 }
 
-@article{guo2017calibration,
-  title={On calibration of modern neural networks},
-  author={Guo, Chuan and Pleiss, Geoff and Sun, Yu and Weinberger, Kilian Q},
-  journal={International Conference on Machine Learning},
-  pages={1321--1330},
-  year={2017}
+@article{askell2021general,
+  title={A general language assistant as a laboratory for alignment},
+  author={Askell, Amanda and Bai, Yuntao and Chen, Anna and Drain, Dawn and Ganguli, Deep and Henighan, Tom and Jones, Andy and Joseph, Nicholas and Mann, Ben and DasSarma, Nova and others},
+  journal={arXiv preprint arXiv:2112.00861},
+  year={2021}
 }
 
-@article{geifman2017selective,
+% ============================================================================
+% CALIBRATION / SELECTIVE PREDICTION
+% ============================================================================
+
+@inproceedings{guo2017calibration,
+  title={On calibration of modern neural networks},
+  author={Guo, Chuan and Pleiss, Geoff and Sun, Yu and Weinberger, Kilian Q},
+  booktitle={International Conference on Machine Learning},
+  pages={1321--1330},
+  year={2017},
+  organization={PMLR}
+}
+
+@inproceedings{geifman2017selective,
   title={Selective classification for deep neural networks},
   author={Geifman, Yonatan and El-Yaniv, Ran},
-  journal={Advances in Neural Information Processing Systems},
+  booktitle={Advances in Neural Information Processing Systems},
   volume={30},
   year={2017}
 }
+
+@article{kompa2021second,
+  title={Second opinion needed: communicating uncertainty in medical machine learning},
+  author={Kompa, Benjamin and Snoek, Jasper and Beam, Andrew L},
+  journal={NPJ Digital Medicine},
+  volume={4},
+  number={1},
+  pages={4},
+  year={2021},
+  publisher={Nature Publishing Group}
+}
+
+% ============================================================================
+% REGULATORY FRAMEWORKS
+% ============================================================================
 
 @techreport{nist2023rmf,
   title={Artificial Intelligence Risk Management Framework (AI RMF 1.0)},
   author={{National Institute of Standards and Technology}},
   year={2023},
-  institution={NIST}
+  institution={NIST},
+  number={NIST AI 100-1}
 }
+
+@article{fda2021action,
+  title={Artificial intelligence/machine learning (AI/ML)-based software as a medical device (SaMD) action plan},
+  author={{U.S. Food and Drug Administration}},
+  year={2021},
+  journal={FDA Report}
+}
+
+@article{muehlematter2021approval,
+  title={Approval of artificial intelligence and machine learning-based medical devices in the USA and Europe (2015--20): a comparative analysis},
+  author={Muehlematter, Urs J and Daniore, Paola and Vokinger, Kerstin N},
+  journal={The Lancet Digital Health},
+  volume={3},
+  number={3},
+  pages={e195--e203},
+  year={2021},
+  publisher={Elsevier}
+}
+
+% ============================================================================
+% CLINICAL DATASETS
+% ============================================================================
 
 @article{johnson2016mimic,
   title={MIMIC-III, a freely accessible critical care database},
@@ -64,7 +148,19 @@
   volume={3},
   number={1},
   pages={1--9},
-  year={2016}
+  year={2016},
+  publisher={Nature Publishing Group}
+}
+
+@article{johnson2023mimic,
+  title={MIMIC-IV, a freely accessible electronic health record dataset},
+  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammber, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},
+  journal={Scientific Data},
+  volume={10},
+  number={1},
+  pages={1},
+  year={2023},
+  publisher={Nature Publishing Group}
 }
 
 @article{pollard2018eicu,
@@ -74,7 +170,8 @@
   volume={5},
   number={1},
   pages={1--13},
-  year={2018}
+  year={2018},
+  publisher={Nature Publishing Group}
 }
 
 @article{thoral2021sharing,
@@ -84,7 +181,8 @@
   volume={49},
   number={6},
   pages={e563--e577},
-  year={2021}
+  year={2021},
+  publisher={Wolters Kluwer}
 }
 
 @article{hyland2020early,
@@ -94,5 +192,100 @@
   volume={26},
   number={3},
   pages={364--373},
-  year={2020}
+  year={2020},
+  publisher={Nature Publishing Group}
+}
+
+@article{goldberger2000physiobank,
+  title={PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals},
+  author={Goldberger, Ary L and Amaral, Luis AN and Glass, Leon and Hausdorff, Jeffrey M and Ivanov, Plamen Ch and Mark, Roger G and Mietus, Joseph E and Moody, George B and Peng, Chung-Kang and Stanley, H Eugene},
+  journal={Circulation},
+  volume={101},
+  number={23},
+  pages={e215--e220},
+  year={2000},
+  publisher={American Heart Association}
+}
+
+% ============================================================================
+% CLINICAL AI VALIDATION
+% ============================================================================
+
+@article{rajpurkar2022ai,
+  title={AI in health and medicine},
+  author={Rajpurkar, Pranav and Chen, Emma and Banerjee, Oishi and Topol, Eric J},
+  journal={Nature Medicine},
+  volume={28},
+  number={1},
+  pages={31--38},
+  year={2022},
+  publisher={Nature Publishing Group}
+}
+
+@article{kelly2019key,
+  title={Key challenges for delivering clinical impact with artificial intelligence},
+  author={Kelly, Christopher J and Karthikesalingam, Alan and Suleyman, Mustafa and Corrado, Greg and King, Dominic},
+  journal={BMC Medicine},
+  volume={17},
+  number={1},
+  pages={1--9},
+  year={2019},
+  publisher={BioMed Central}
+}
+
+@article{wiens2019no,
+  title={Do no harm: a roadmap for responsible machine learning for health care},
+  author={Wiens, Jenna and Saria, Suchi and Sendak, Mark and Ghassemi, Marzyeh and Liu, Vincent X and Doshi-Velez, Finale and Jung, Kenneth and Heller, Katherine and Kale, David and Saeed, Mohammed and others},
+  journal={Nature Medicine},
+  volume={25},
+  number={9},
+  pages={1337--1340},
+  year={2019},
+  publisher={Nature Publishing Group}
+}
+
+% ============================================================================
+% AGENTIC AI / LLM AGENTS
+% ============================================================================
+
+@article{wang2024survey,
+  title={A survey on large language model based autonomous agents},
+  author={Wang, Lei and Ma, Chen and Feng, Xueyang and Zhang, Zeyu and Yang, Hao and Zhang, Jingsen and Chen, Zhiyuan and Tang, Jiakai and Chen, Xu and Lin, Yankai and others},
+  journal={Frontiers of Computer Science},
+  volume={18},
+  number={6},
+  pages={186345},
+  year={2024},
+  publisher={Springer}
+}
+
+@article{xi2023rise,
+  title={The rise and potential of large language model based agents: A survey},
+  author={Xi, Zhiheng and Chen, Wenxiang and Guo, Xin and He, Wei and Ding, Yiwen and Hong, Boyang and Zhang, Ming and Wang, Junzhe and Jin, Senjie and Zhou, Enyu and others},
+  journal={arXiv preprint arXiv:2309.07864},
+  year={2023}
+}
+
+% ============================================================================
+% REPRODUCIBILITY
+% ============================================================================
+
+@article{baker2016reproducibility,
+  title={1,500 scientists lift the lid on reproducibility},
+  author={Baker, Monya},
+  journal={Nature},
+  volume={533},
+  number={7604},
+  pages={452--454},
+  year={2016}
+}
+
+@article{pineau2021improving,
+  title={Improving reproducibility in machine learning research (a report from the NeurIPS 2019 reproducibility program)},
+  author={Pineau, Joelle and Vincent-Lamarre, Philippe and Sinha, Koustuv and Larivi{\`e}re, Vincent and Beygelzimer, Alina and d'Alch{\'e}-Buc, Florence and Fox, Emily and Larochelle, Hugo},
+  journal={Journal of Machine Learning Research},
+  volume={22},
+  number={164},
+  pages={1--20},
+  year={2021}
 }
