@@ -7,7 +7,7 @@ name = "rubric-gates"
 version = "0.1.0"
 description = "Certificate-first rubric gating: public rubrics, schemas, verifier, and reproducibility harness."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "MedTWIN AI" }]
 dependencies = [
