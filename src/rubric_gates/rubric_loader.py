@@ -23,7 +23,15 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from jsonschema import Draft202012Validator
+
+# Use a compatible validator - try newer version first, fall back to older
+try:
+    from jsonschema import Draft202012Validator as Validator
+except ImportError:
+    try:
+        from jsonschema import Draft7Validator as Validator
+    except ImportError:
+        from jsonschema import Draft4Validator as Validator
 
 
 @dataclasses.dataclass(frozen=True)
@@ -73,7 +81,7 @@ def load_rubric_file(path: Path) -> RubricSuite:
 
     # Validate against schema
     schema = _get_rubric_schema()
-    validator = Draft202012Validator(schema)
+    validator = Validator(schema)
     errors = list(validator.iter_errors(raw))
     if errors:
         error_msgs = [f"{'.'.join(str(p) for p in e.absolute_path)}: {e.message}" for e in errors]
