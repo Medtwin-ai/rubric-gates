@@ -18,6 +18,15 @@ from rubric_gates.evaluator import (
     TierResult,
     create_certificate,
 )
+from rubric_gates.harness import (
+    BenchmarkHarness,
+    BenchmarkResult,
+    DatasetResult,
+    DatasetSpec,
+    RunConfig,
+    create_run_config,
+    generate_run_manifest,
+)
 from rubric_gates.rubric_loader import (
     RubricCheck,
     RubricSuite,
@@ -36,6 +45,14 @@ __all__ = [
     "RubricEvaluator",
     "TierResult",
     "create_certificate",
+    # Harness
+    "BenchmarkHarness",
+    "BenchmarkResult",
+    "DatasetResult",
+    "DatasetSpec",
+    "RunConfig",
+    "create_run_config",
+    "generate_run_manifest",
     # Rubric loader
     "RubricCheck",
     "RubricSuite",
