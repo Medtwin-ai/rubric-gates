@@ -17,19 +17,28 @@ ADAPTER CONTRACT:
 """
 
 from rubric_gates.adapters.base import (
-    BaseAdapter,
     AdapterConfig,
+    AdmissionRecord,
+    BaseAdapter,
+    ClinicalEvent,
     CohortCriteria,
     PatientRecord,
-    AdmissionRecord,
-    ClinicalEvent,
 )
+from rubric_gates.adapters.eicu import EICUAdapter, create_eicu_adapter
+from rubric_gates.adapters.mimic_iv import MIMICIVAdapter, create_mimic_iv_adapter
 
 __all__ = [
-    "BaseAdapter",
+    # Base
     "AdapterConfig",
+    "AdmissionRecord",
+    "BaseAdapter",
+    "ClinicalEvent",
     "CohortCriteria",
     "PatientRecord",
-    "AdmissionRecord",
-    "ClinicalEvent",
+    # MIMIC-IV
+    "MIMICIVAdapter",
+    "create_mimic_iv_adapter",
+    # eICU
+    "EICUAdapter",
+    "create_eicu_adapter",
 ]
