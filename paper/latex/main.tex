@@ -1,0 +1,511 @@
+% PATH: paper/latex/main.tex
+% PURPOSE: Main LaTeX manuscript for Rubric Gates paper
+%
+% DISCLAIMER: This manuscript was drafted and edited with assistance from
+% Large Language Models (LLMs). All technical claims, experimental results,
+% and scientific conclusions have been verified by the human authors.
+
+\documentclass[11pt,a4paper]{article}
+
+% ============================================================================
+% PACKAGES
+% ============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\usepackage{fancyhdr}
+
+% ============================================================================
+% CONFIGURATION
+% ============================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+}
+
+% ============================================================================
+% LLM DISCLAIMER BOX
+% ============================================================================
+\newtcolorbox{llmdisclaimer}{
+    colback=yellow!5!white,
+    colframe=orange!75!black,
+    fonttitle=\bfseries,
+    title=AI Assistance Disclosure,
+    boxrule=0.5pt,
+    arc=2pt,
+}
+
+% ============================================================================
+% TITLE AND AUTHORS
+% ============================================================================
+\title{%
+    \textbf{Rubric Gates: Certificate-First Gating for Provable,\\
+    Optimizable Agentic Medical Workflows}
+}
+
+\author{
+    MedTWIN AI Research Team\\
+    \texttt{research@medtwin.ai}
+}
+
+\date{\today}
+
+% ============================================================================
+% DOCUMENT
+% ============================================================================
+\begin{document}
+
+\maketitle
+
+% ============================================================================
+% AI ASSISTANCE DISCLAIMER
+% ============================================================================
+\begin{llmdisclaimer}
+\textbf{Transparency Statement:} This manuscript was drafted and edited with 
+assistance from Large Language Models (LLMs), including Claude (Anthropic). 
+The LLM was used for:
+\begin{itemize}
+    \item Initial drafting and structural organization
+    \item Code generation for experimental implementations
+    \item Literature review synthesis
+    \item Copy editing and formatting
+\end{itemize}
+\textbf{All technical claims, experimental results, mathematical formulations, 
+and scientific conclusions have been independently verified by the human authors.}
+The authors take full responsibility for the accuracy and integrity of this work.
+\end{llmdisclaimer}
+
+\vspace{1em}
+
+% ============================================================================
+% ABSTRACT
+% ============================================================================
+\begin{abstract}
+Agentic AI systems in clinical research produce outputs (cohort definitions, 
+statistical analyses, manuscript drafts) that currently lack verifiable 
+evidence of correctness. We introduce \textbf{Rubric Gates}, a certificate-first 
+validation framework where every artifact ships with machine-checkable proof 
+that it passed a hierarchy of rubric checks: (1) constitutional invariants 
+(determinism, audit completeness, PHI protection), (2) clinical domain 
+constraints (unit consistency, plausible ranges, temporal coherence), and 
+(3) task-specific benchmarks (reference implementation agreement). 
+
+We formalize gate decisions (approve/revise/block) with calibrated deferral 
+to human review, enabling both \emph{provability} (soundness guarantees) and 
+\emph{optimizability} (measurable improvement over baselines). Experiments 
+across $N$ PhysioNet datasets demonstrate that Rubric Gates reduces 
+``passed-but-wrong'' failures by $X\%$ while maintaining $Y\%$ throughput, 
+with certificates that third parties can independently verify. We release 
+the rubric definitions, verifier, and reproducibility harness as open-source 
+artifacts.
+
+\textbf{Keywords:} AI safety, clinical AI, certificates, rubrics, agentic systems, 
+reproducibility, governance
+\end{abstract}
+
+% ============================================================================
+% 1. INTRODUCTION
+% ============================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+Trust failures in medical AI are often \emph{epistemic} rather than purely 
+\emph{statistical}---users cannot verify whether an AI-generated output is 
+correct, even when the underlying model has high accuracy on held-out data. 
+This gap is particularly acute for \emph{agentic} systems that generate complex 
+artifacts (SQL cohort queries, statistical analysis code, manuscript text) 
+rather than simple predictions.
+
+Current approaches to AI reliability fall into two camps:
+\begin{enumerate}
+    \item \textbf{Documentation-centric:} Model cards~\citep{mitchell2019model}, 
+    datasheets~\citep{gebru2021datasheets}, and risk assessments provide 
+    transparency but no runtime enforcement.
+    \item \textbf{Evaluation-centric:} Benchmark suites and held-out test sets 
+    measure aggregate performance but do not certify individual outputs.
+\end{enumerate}
+
+Neither approach answers the fundamental question: \emph{Can this specific 
+output be trusted for this specific use case?}
+
+\paragraph{Contribution.} We introduce \textbf{Rubric Gates}, a framework that 
+bridges documentation and evaluation through \emph{certificates}---machine-checkable 
+artifacts that accompany every output and prove it passed a hierarchy of 
+formalized rubric checks. Our contributions are:
+
+\begin{enumerate}
+    \item \textbf{Certificate schema} (\S\ref{sec:certificates}): A versioned, 
+    JSON-serializable format for output provenance, rubric results, and gate 
+    decisions.
+    
+    \item \textbf{Hierarchical rubrics} (\S\ref{sec:rubrics}): Three-tier 
+    evaluation (constitutional → clinical → task-specific) with explicit 
+    thresholds and gate policies.
+    
+    \item \textbf{Governance protocol} (\S\ref{sec:governance}): Meta-gates 
+    for rubric evolution and drift detection, enabling principled change control.
+    
+    \item \textbf{Reproducibility harness} (\S\ref{sec:harness}): Open-source 
+    tooling for running benchmarks and verifying certificates.
+\end{enumerate}
+
+% ============================================================================
+% 2. RELATED WORK
+% ============================================================================
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Proof-Carrying Code and Certificates.}
+The idea that artifacts should ship with checkable proofs originates in 
+proof-carrying code~\citep{necula1997proof}. We adapt this paradigm to 
+AI outputs: certificates are ``proofs'' that rubrics were satisfied.
+
+\paragraph{Model Cards and Datasheets.}
+Model cards~\citep{mitchell2019model} and datasheets for datasets~\citep{gebru2021datasheets} 
+provide transparency through documentation. Rubric Gates differs by 
+\emph{enforcing} requirements at runtime rather than merely documenting them.
+
+\paragraph{Constitutional AI.}
+Constitutional AI~\citep{bai2022constitutional} uses principles to guide 
+model behavior during training and inference. Our rubrics serve a similar 
+role but focus on \emph{post-hoc verification} of outputs rather than 
+in-context steering.
+
+\paragraph{Calibration and Selective Prediction.}
+Calibrated uncertainty~\citep{guo2017calibration} and selective prediction~\citep{geifman2017selective} 
+allow models to abstain when uncertain. Our deferral mechanism operationalizes 
+this via explicit gate thresholds and human-in-the-loop escalation.
+
+\paragraph{Regulatory Frameworks.}
+The NIST AI Risk Management Framework~\citep{nist2023rmf} and FDA's 
+Predetermined Change Control Plans (PCCP) emphasize governance and 
+change control. Rubric Gates provides a technical implementation of 
+these principles via meta-gates (\S\ref{sec:governance}).
+
+% ============================================================================
+% 3. SYSTEM OVERVIEW
+% ============================================================================
+\section{System Overview}
+\label{sec:system}
+
+\begin{figure}[t]
+    \centering
+    % TODO: Insert architecture diagram
+    \fbox{\parbox{0.9\textwidth}{\centering
+        \textbf{[Figure 1: Architecture Diagram]}\\[1em]
+        Shows the determinism boundary: propose → spec → execute → certificate.\\
+        Gate placement at each transition point.
+    }}
+    \caption{Rubric Gates architecture. Agentic proposals are converted to 
+    deterministic specs, executed with versioned runtimes, and certified 
+    against hierarchical rubrics before release.}
+    \label{fig:architecture}
+\end{figure}
+
+The Rubric Gates system enforces a \textbf{determinism boundary} between 
+non-deterministic AI generation and deterministic execution:
+
+\begin{enumerate}
+    \item \textbf{Propose:} An agent generates a candidate artifact (e.g., 
+    SQL query, analysis code).
+    
+    \item \textbf{Spec:} The proposal is converted to a versioned, 
+    content-addressed specification with declared inputs and outputs.
+    
+    \item \textbf{Execute:} A deterministic executor (e.g., DuckDB with 
+    fixed seed) runs the spec and produces outputs.
+    
+    \item \textbf{Certificate:} The system evaluates outputs against rubrics 
+    and emits a certificate with the gate decision.
+\end{enumerate}
+
+% ============================================================================
+% 4. RUBRIC GATES FRAMEWORK
+% ============================================================================
+\section{Rubric Gates Framework}
+\label{sec:rubrics}
+
+\subsection{Hierarchical Rubrics}
+
+We organize rubrics into three tiers with increasing specificity:
+
+\begin{table}[t]
+    \centering
+    \caption{Rubric tiers, example checks, and gate policies.}
+    \label{tab:rubrics}
+    \begin{tabular}{@{}llll@{}}
+        \toprule
+        \textbf{Tier} & \textbf{Scope} & \textbf{Example Checks} & \textbf{Gate} \\
+        \midrule
+        1: Constitution & Universal & Determinism, audit trace, no PHI & Block \\
+        2: Clinical & Domain & Unit consistency, plausible ranges & Block/Revise \\
+        3: Benchmark & Task & SQL executes, Jaccard $\geq 0.7$ & Revise \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{Tier 1: Constitutional Invariants.}
+These are non-negotiable requirements that apply to \emph{all} outputs:
+\begin{itemize}
+    \item \texttt{determinism\_required}: Same spec + seed → same output
+    \item \texttt{audit\_trace\_complete}: Every decision has a trace ID
+    \item \texttt{no\_phi\_in\_artifacts}: No identifiable information in certificates
+    \item \texttt{no\_outcome\_claims}: No clinical claims without validation
+\end{itemize}
+
+\paragraph{Tier 2: Clinical Invariants.}
+These encode domain knowledge that transfers across datasets:
+\begin{itemize}
+    \item \texttt{unit\_consistency}: All features have declared units
+    \item \texttt{plausible\_ranges}: Values fall within physiological bounds
+    \item \texttt{temporal\_coherence}: No future-leakage in retrospective studies
+    \item \texttt{outcome\_leakage}: Labels don't leak via features
+\end{itemize}
+
+\paragraph{Tier 3: Task Benchmarks.}
+These are empirical checks against known-good references:
+\begin{itemize}
+    \item \texttt{sql\_executes}: Cohort specs run without errors
+    \item \texttt{cohort\_overlap}: Jaccard similarity $\geq \theta$ with reference
+\end{itemize}
+
+\subsection{Gate Decisions and Deferral}
+\label{sec:certificates}
+
+Each rubric check produces a \texttt{CheckResult}:
+\begin{lstlisting}[language=Python]
+@dataclass
+class CheckResult:
+    id: str
+    passed: bool
+    score: float | None
+    threshold: float | None
+    message: str | None
+\end{lstlisting}
+
+Gate decisions follow a policy:
+\begin{itemize}
+    \item \textbf{Approve:} All tiers passed
+    \item \textbf{Revise:} Tier 3 failures only (agent can retry)
+    \item \textbf{Block:} Tier 1 or 2 failures (human review required)
+\end{itemize}
+
+% ============================================================================
+% 5. GOVERNANCE
+% ============================================================================
+\section{Governance and Change Control}
+\label{sec:governance}
+
+Rubrics themselves must be versioned and governed. We introduce \textbf{meta-gates}:
+
+\begin{enumerate}
+    \item \textbf{Rubric change proposals} require evidence that the change 
+    improves soundness or completeness without breaking existing guarantees.
+    
+    \item \textbf{Drift detection} monitors rubric pass rates over time; 
+    significant drops trigger review.
+    
+    \item \textbf{Version pinning} ensures reproducibility: certificates 
+    record the exact rubric versions used.
+\end{enumerate}
+
+% ============================================================================
+% 6. DATA & METHODOLOGY
+% ============================================================================
+\section{Data and Database Methodology}
+\label{sec:harness}
+
+\subsection{Dataset Manifests}
+
+Each dataset is specified by a manifest:
+\begin{lstlisting}[language=JSON]
+{
+  "id": "mimic_iv",
+  "version": "2.2",
+  "source": "physionet.org/mimiciv",
+  "hash": "sha256:abc123...",
+  "adapter": "rubric_gates.adapters.mimic"
+}
+\end{lstlisting}
+
+\subsection{Benchmark Suite}
+
+We evaluate on:
+\begin{itemize}
+    \item \textbf{Anchor datasets} (deep ablations): MIMIC-IV, eICU-CRD
+    \item \textbf{External validity} (distribution shift): AmsterdamUMCdb, HiRID
+\end{itemize}
+
+\begin{table}[t]
+    \centering
+    \caption{Dataset × task matrix.}
+    \label{tab:datasets}
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \textbf{Dataset} & \textbf{Cohort} & \textbf{Mapping} & \textbf{Analysis} & \textbf{Role} \\
+        \midrule
+        MIMIC-IV & \checkmark & \checkmark & \checkmark & Anchor \\
+        eICU-CRD & \checkmark & \checkmark & \checkmark & Anchor \\
+        AmsterdamUMCdb & \checkmark & -- & -- & External \\
+        HiRID & \checkmark & -- & -- & External \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% ============================================================================
+% 7. EXPERIMENTS
+% ============================================================================
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Baselines}
+
+\begin{itemize}
+    \item \textbf{B0:} Raw LLM output (no gates)
+    \item \textbf{B1:} + Tier 1 only
+    \item \textbf{B2:} + Tier 1 + Tier 2
+    \item \textbf{B3:} + Tier 1 + Tier 2 + Tier 3
+    \item \textbf{B4:} + Tier 1 + Tier 2 + Tier 3 + Refinement loop
+\end{itemize}
+
+\subsection{Metrics}
+
+\begin{itemize}
+    \item \textbf{Soundness:} \% of approved outputs that are actually correct
+    \item \textbf{Completeness:} \% of correct outputs that are approved
+    \item \textbf{Calibration:} Alignment between confidence and correctness
+    \item \textbf{Reproducibility:} Same manifest → same results
+    \item \textbf{Cost:} API calls / tokens / time
+\end{itemize}
+
+% ============================================================================
+% 8. RESULTS
+% ============================================================================
+\section{Results}
+\label{sec:results}
+
+\begin{table}[t]
+    \centering
+    \caption{Ablation results across baselines.}
+    \label{tab:results}
+    \begin{tabular}{@{}lccccc@{}}
+        \toprule
+        \textbf{Baseline} & \textbf{Sound.} & \textbf{Comp.} & \textbf{Calib.} & \textbf{Repro.} & \textbf{Cost} \\
+        \midrule
+        B0 (no gates) & -- & -- & -- & -- & -- \\
+        B1 (Tier 1) & -- & -- & -- & -- & -- \\
+        B2 (Tier 1+2) & -- & -- & -- & -- & -- \\
+        B3 (Tier 1+2+3) & -- & -- & -- & -- & -- \\
+        B4 (+ refinement) & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textit{[Results to be filled after experiments]}
+
+% ============================================================================
+% 9. DISCUSSION
+% ============================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What We Guarantee.}
+Rubric Gates provides \emph{process guarantees}: outputs that pass are 
+deterministic, auditable, and benchmark-aligned. We do \textbf{not} claim 
+clinical outcome improvement without prospective validation.
+
+\paragraph{Limitations.}
+\begin{itemize}
+    \item Rubrics are only as good as their design; gaming is possible.
+    \item Tier 3 benchmarks require ground-truth references.
+    \item Deferral increases human workload.
+\end{itemize}
+
+% ============================================================================
+% 10. CONCLUSION
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced Rubric Gates, a certificate-first framework for validating 
+agentic AI outputs in clinical research. By combining hierarchical rubrics, 
+explicit gate policies, and governance protocols, we enable both provability 
+(verifiable correctness) and optimizability (measurable improvement). 
+The open-source release of rubrics, verifier, and harness enables 
+independent verification and community extension.
+
+% ============================================================================
+% ACKNOWLEDGMENTS
+% ============================================================================
+\section*{Acknowledgments}
+
+We thank the PhysioNet team for providing access to clinical datasets 
+under appropriate data use agreements.
+
+% ============================================================================
+% AI TOOLS USED
+% ============================================================================
+\section*{AI Tools Disclosure}
+
+In accordance with emerging best practices for transparency in scientific 
+publishing, we disclose the use of the following AI tools in preparing 
+this manuscript:
+
+\begin{itemize}
+    \item \textbf{Claude (Anthropic)}: Used for initial drafting, code 
+    generation, and copy editing. All outputs were reviewed and verified 
+    by human authors.
+    
+    \item \textbf{GitHub Copilot}: Used for code completion during 
+    implementation of the rubric-gates library.
+\end{itemize}
+
+The authors affirm that all scientific claims, experimental designs, 
+and conclusions represent the intellectual contribution of the human 
+authors, who take full responsibility for the content.
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% ============================================================================
+% APPENDIX
+% ============================================================================
+\appendix
+
+\section{Certificate Schema}
+\label{app:schema}
+
+The full JSON schema for certificates is available at:\\
+\url{https://github.com/Medtwin-ai/rubric-gates/schemas/certificate.schema.json}
+
+\section{Rubric Definitions}
+\label{app:rubrics}
+
+Complete rubric YAML files are available at:\\
+\url{https://github.com/Medtwin-ai/rubric-gates/rubrics/}
+
+\end{document}
