@@ -112,10 +112,105 @@ def cmd_info(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_datasets(args: argparse.Namespace) -> int:
+    """List available datasets."""
+    from rubric_gates.datasets.registry import DATASET_REGISTRY
+
+    print("Rubric Gates - Available Datasets\n")
+    print("=" * 70)
+
+    for info in DATASET_REGISTRY.values():
+        cred = "🔒 Credentialed" if info.credentialed else "🌐 Public"
+        size = f"{info.expected_size_gb:.1f} GB" if info.expected_size_gb else "Unknown size"
+        print(f"\n📊 {info.name} ({info.id})")
+        print(f"   Version: {info.version}")
+        print(f"   Access:  {cred}")
+        print(f"   Size:    {size}")
+        print(f"   Source:  {info.source}")
+
+    print("\n" + "=" * 70)
+    print(f"Total datasets: {len(DATASET_REGISTRY)}")
+    print("\nTo download: rubric-gates download <dataset_id>")
+    return 0
+
+
+def cmd_download(args: argparse.Namespace) -> int:
+    """Download a dataset from PhysioNet."""
+    from rubric_gates.datasets import download_dataset, get_dataset_info
+
+    dataset_id = args.dataset_id
+    info = get_dataset_info(dataset_id)
+
+    if info is None:
+        print(f"❌ Unknown dataset: {dataset_id}")
+        print("Run 'rubric-gates datasets' to see available datasets.")
+        return 1
+
+    print(f"📥 Downloading {info.name} v{info.version}...")
+
+    if info.credentialed:
+        import os
+        if not os.environ.get("PHYSIONET_USER"):
+            print("\n⚠️  This dataset requires PhysioNet credentials.")
+            print("Set environment variables:")
+            print("  export PHYSIONET_USER=your_username")
+            print("  export PHYSIONET_PASS=your_password")
+            return 1
+
+    try:
+        path = download_dataset(
+            dataset_id,
+            data_dir=args.data_dir,
+            force=args.force,
+        )
+        print(f"✅ Downloaded to: {path}")
+        return 0
+    except Exception as e:
+        print(f"❌ Download failed: {e}")
+        return 1
+
+
+def cmd_manifest(args: argparse.Namespace) -> int:
+    """Create or verify a dataset manifest."""
+    from pathlib import Path
+    from rubric_gates.datasets import create_manifest, load_manifest, verify_manifest
+
+    if args.action == "create":
+        print(f"📋 Creating manifest for {args.dataset_dir}...")
+        manifest = create_manifest(
+            dataset_dir=Path(args.dataset_dir),
+            dataset_id=args.dataset_id,
+            version=args.version,
+        )
+        output_path = Path(args.output or f"{args.dataset_id}_manifest.json")
+        manifest.save(output_path)
+        print(f"✅ Manifest saved to: {output_path}")
+        print(f"   Files: {manifest.total_files}")
+        print(f"   Size:  {manifest.total_size_bytes / 1e9:.2f} GB")
+        print(f"   Root hash: {manifest.root_hash[:16]}...")
+        return 0
+
+    elif args.action == "verify":
+        print(f"🔍 Verifying manifest against {args.dataset_dir}...")
+        manifest = load_manifest(Path(args.manifest_file))
+        is_valid, errors = verify_manifest(manifest, Path(args.dataset_dir))
+
+        if is_valid:
+            print("✅ Manifest verification passed")
+            return 0
+        else:
+            print("❌ Manifest verification failed:")
+            for error in errors:
+                print(f"  - {error}")
+            return 1
+
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="rubric-gates",
-        description="Rubric Gates CLI: verify certificates, evaluate artifacts, and inspect rubrics.",
+        description="Rubric Gates CLI: verify certificates, evaluate artifacts, manage datasets.",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -140,6 +235,29 @@ def build_parser() -> argparse.ArgumentParser:
     # info command
     subparsers.add_parser("info", help="Show loaded rubrics information")
 
+    # datasets command
+    subparsers.add_parser("datasets", help="List available datasets")
+
+    # download command
+    download_parser = subparsers.add_parser("download", help="Download a dataset from PhysioNet")
+    download_parser.add_argument("dataset_id", help="Dataset identifier (e.g., mimic_iv)")
+    download_parser.add_argument("--data-dir", default="./datasets", help="Directory to store datasets")
+    download_parser.add_argument("--force", action="store_true", help="Re-download even if exists")
+
+    # manifest command
+    manifest_parser = subparsers.add_parser("manifest", help="Create or verify dataset manifests")
+    manifest_subparsers = manifest_parser.add_subparsers(dest="action")
+
+    create_parser = manifest_subparsers.add_parser("create", help="Create a manifest")
+    create_parser.add_argument("dataset_dir", help="Path to dataset directory")
+    create_parser.add_argument("--dataset-id", required=True, help="Dataset identifier")
+    create_parser.add_argument("--version", required=True, help="Dataset version")
+    create_parser.add_argument("-o", "--output", help="Output manifest file path")
+
+    verify_manifest_parser = manifest_subparsers.add_parser("verify", help="Verify a manifest")
+    verify_manifest_parser.add_argument("manifest_file", help="Path to manifest JSON")
+    verify_manifest_parser.add_argument("dataset_dir", help="Path to dataset directory")
+
     return parser
 
 
@@ -153,6 +271,12 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_evaluate(args)
     elif args.command == "info":
         return cmd_info(args)
+    elif args.command == "datasets":
+        return cmd_datasets(args)
+    elif args.command == "download":
+        return cmd_download(args)
+    elif args.command == "manifest":
+        return cmd_manifest(args)
     else:
         parser.print_help()
         return 0
