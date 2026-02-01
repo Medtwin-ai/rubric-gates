@@ -16,8 +16,23 @@ dependencies = [
 ]
 
 [project.scripts]
-rubric-gates-verify = "rubric_gates.cli:main"
+rubric-gates = "rubric_gates.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rubric_gates"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
