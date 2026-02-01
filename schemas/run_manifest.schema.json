@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.medtwin.ai/rubric-gates/run_manifest.schema.json",
+  "title": "Rubric Gates Run Manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "created_at", "task", "dataset", "versions", "execution", "artifacts"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "minLength": 1 },
+    "task": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["family", "id"],
+      "properties": {
+        "family": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["dataset_id", "manifest_id"],
+      "properties": {
+        "dataset_id": { "type": "string" },
+        "manifest_id": { "type": "string" }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["rubrics"],
+      "properties": {
+        "dataset_adapter": { "type": "string" },
+        "canonical_views": { "type": "string" },
+        "rubrics": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "tier1": { "type": "string" },
+            "tier2": { "type": "string" },
+            "tier3": { "type": "string" }
+          }
+        },
+        "gate_policy": { "type": "string" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["executor", "seed"],
+      "properties": {
+        "executor": { "type": "string" },
+        "seed": { "type": "integer" }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "certificate_path": { "type": "string" },
+        "audit_trace_path": { "type": "string" },
+        "metrics_path": { "type": "string" }
+      }
+    }
+  }
+}
+

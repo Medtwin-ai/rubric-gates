@@ -1,0 +1,52 @@
+# =============================================================================
+# PATH: rubrics/tier2/clinical_invariants.yaml
+# PURPOSE: Tier 2 clinical-domain invariants for Rubric Gates.
+#
+# WHY:
+# - Tier 2 is designed to transfer across datasets because it encodes medical meaning:
+#   units, plausible ranges, temporal coherence, leakage prevention.
+#
+# DEPENDENCIES:
+# - Dataset dictionaries / adapter metadata (units, code systems, time semantics)
+# =============================================================================
+
+rubric_suite:
+  id: "tier2.clinical_invariants"
+  tier: 2
+  version: "1.0.0"
+  purpose: "Enforce cross-dataset clinical invariants (units/ranges/time/leakage)."
+
+  checks:
+    - id: "tier2.unit_consistency"
+      description: "All numeric features must have declared units; conversions must be explicit."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Declare units for each numeric output."
+        - "Add conversion step if dataset unit differs from canonical unit."
+
+    - id: "tier2.plausible_ranges"
+      description: "Numeric outputs must fall within plausible physiological ranges (or be flagged)."
+      check_type: "deterministic"
+      severity: "major"
+      gate: "revise"
+      required_fixes:
+        - "Clamp/flag implausible values and document handling."
+
+    - id: "tier2.temporal_coherence"
+      description: "Time windows must not include post-outcome information; ordering must be valid."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Define index time explicitly and ensure all features are pre-index."
+
+    - id: "tier2.outcome_leakage_prevention"
+      description: "No label leakage via features (direct or proxy leakage)."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Move any post-index variables out of feature set."
+

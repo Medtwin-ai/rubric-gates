@@ -1,0 +1,46 @@
+{
+  "certificate_id": "00000000-0000-0000-0000-000000000000",
+  "created_at": "2026-02-01T00:00:00Z",
+  "artifact": {
+    "type": "cohort_spec",
+    "version": "0.1.0",
+    "hash": "sha256_will_be_checked_if_artifact_is_provided",
+    "inputs_summary": "example only; contains no PHI",
+    "deterministic_executor": "duckdb+sql"
+  },
+  "rubrics": {
+    "tier_1": {
+      "pass": true,
+      "checks": [
+        { "id": "tier1.determinism_required", "pass": true },
+        { "id": "tier1.audit_trace_complete", "pass": true }
+      ]
+    },
+    "tier_2": {
+      "pass": true,
+      "checks": [
+        { "id": "tier2.unit_consistency", "score": 1.0, "threshold": 1.0 },
+        { "id": "tier2.temporal_coherence", "pass": true }
+      ]
+    },
+    "tier_3": {
+      "pass": false,
+      "checks": [
+        { "id": "tier3.sql_executes", "pass": true },
+        { "id": "tier3.cohort_overlap_jaccard", "score": 0.41, "threshold": 0.7, "message": "Below threshold" }
+      ]
+    }
+  },
+  "gate_decision": {
+    "decision": "revise",
+    "blocking_reasons": ["tier3.cohort_overlap_jaccard below threshold"],
+    "required_fixes": ["tighten inclusion criteria; re-run reference phenotype logic"],
+    "deferral": { "recommended": false, "to": "human_review" }
+  },
+  "provenance": {
+    "audit_trace_id": "trace_example_0001",
+    "run_manifest_id": "manifest_example_0001",
+    "rubric_versions": { "tier1": "1.0.0", "tier2": "1.0.0", "tier3": "1.0.0" }
+  }
+}
+

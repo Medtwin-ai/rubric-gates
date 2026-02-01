@@ -1,0 +1,25 @@
+# PATH: .gitignore
+# PURPOSE: Git ignore rules for Rubric Gates (Python + research artifacts)
+
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Build
+dist/
+build/
+
+# Local datasets / artifacts (never commit)
+datasets/
+artifacts/
+

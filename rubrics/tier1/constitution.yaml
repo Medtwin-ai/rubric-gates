@@ -1,0 +1,56 @@
+# =============================================================================
+# PATH: rubrics/tier1/constitution.yaml
+# PURPOSE: Tier 1 rubric suite (“constitution”) for Rubric Gates.
+#
+# WHY:
+# - Tier 1 is frozen and non-negotiable: it prevents trust collapse and Goodharting.
+# - Optimization is allowed only under these constraints.
+#
+# FLOW:
+# ┌──────────────┐   ┌──────────────────────┐   ┌──────────────────────────┐
+# │ Produce spec │──▶│ Run deterministic exec│──▶│ Enforce Tier 1 invariants │
+# └──────────────┘   └──────────────────────┘   └──────────────────────────┘
+#
+# DEPENDENCIES:
+# - certificate.schema.json (what must be emitted)
+# =============================================================================
+
+rubric_suite:
+  id: "tier1.constitution"
+  tier: 1
+  version: "1.0.0"
+  purpose: "Prevent non-auditable, non-reproducible, unsafe outputs."
+
+  checks:
+    - id: "tier1.determinism_required"
+      description: "Outputs must be reproducible from explicit specs + seeds."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Emit an executable spec and record the executor + seed."
+
+    - id: "tier1.audit_trace_complete"
+      description: "Every decision must have an auditable trace (no missing steps)."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Emit an audit trace id and link it in the certificate provenance."
+
+    - id: "tier1.no_phi_in_artifacts"
+      description: "No PHI allowed in certificates, traces, or stored reasoning artifacts."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Redact row-level identifiers; store metadata summaries only."
+
+    - id: "tier1.no_outcome_claims_without_validation"
+      description: "No clinical outcome claims without prospective validation."
+      check_type: "policy"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Restrict claims to reliability/provability metrics and clearly state limitations."
+

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rubric-gates"
+version = "0.1.0"
+description = "Certificate-first rubric gating: public rubrics, schemas, verifier, and reproducibility harness."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "MedTWIN AI" }]
+dependencies = [
+  "jsonschema",
+  "PyYAML",
+]
+
+[project.scripts]
+rubric-gates-verify = "rubric_gates.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rubric_gates"]
+

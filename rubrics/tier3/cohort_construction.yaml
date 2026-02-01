@@ -1,0 +1,38 @@
+# =============================================================================
+# PATH: rubrics/tier3/cohort_construction.yaml
+# PURPOSE: Tier 3 task+dataset benchmark checks for cohort construction.
+#
+# WHY:
+# - Tier 3 is where claims become measurable: executable cohort specs, overlap with
+#   deterministic reference phenotypes, and task-specific thresholds.
+#
+# DEPENDENCIES:
+# - Reference phenotype SQL/specs for the chosen dataset(s)
+# =============================================================================
+
+rubric_suite:
+  id: "tier3.cohort_construction"
+  tier: 3
+  version: "1.0.0"
+  purpose: "Benchmark cohort definitions against deterministic references."
+
+  checks:
+    - id: "tier3.sql_executes"
+      description: "Cohort SQL/spec must execute successfully against the canonical DB."
+      check_type: "deterministic"
+      severity: "critical"
+      gate: "block"
+      required_fixes:
+        - "Fix SQL syntax and ensure all referenced tables/views exist."
+
+    - id: "tier3.cohort_overlap_jaccard"
+      description: "Cohort overlap vs reference phenotype must exceed threshold τ."
+      check_type: "deterministic"
+      severity: "major"
+      gate: "revise"
+      scoring:
+        type: "scalar"
+        threshold: 0.70
+      required_fixes:
+        - "Tighten inclusion/exclusion criteria using reference phenotype definition."
+

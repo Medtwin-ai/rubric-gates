@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.medtwin.ai/rubric-gates/certificate.schema.json",
+  "title": "Rubric Gates Certificate",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["certificate_id", "created_at", "artifact", "rubrics", "gate_decision", "provenance"],
+  "properties": {
+    "certificate_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "minLength": 1 },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type", "version", "hash", "deterministic_executor"],
+      "properties": {
+        "type": { "type": "string" },
+        "version": { "type": "string" },
+        "hash": { "type": "string", "minLength": 1 },
+        "inputs_summary": { "type": "string" },
+        "deterministic_executor": { "type": "string" }
+      }
+    },
+    "rubrics": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["tier_1", "tier_2", "tier_3"],
+      "properties": {
+        "tier_1": { "$ref": "#/$defs/tierResult" },
+        "tier_2": { "$ref": "#/$defs/tierResult" },
+        "tier_3": { "$ref": "#/$defs/tierResult" }
+      }
+    },
+    "gate_decision": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["decision"],
+      "properties": {
+        "decision": { "type": "string", "enum": ["approve", "revise", "block"] },
+        "blocking_reasons": { "type": "array", "items": { "type": "string" } },
+        "required_fixes": { "type": "array", "items": { "type": "string" } },
+        "deferral": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "recommended": { "type": "boolean" },
+            "to": { "type": "string" }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["audit_trace_id", "run_manifest_id", "rubric_versions"],
+      "properties": {
+        "audit_trace_id": { "type": "string" },
+        "run_manifest_id": { "type": "string" },
+        "rubric_versions": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "tier1": { "type": "string" },
+            "tier2": { "type": "string" },
+            "tier3": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "tierResult": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["pass", "checks"],
+      "properties": {
+        "pass": { "type": "boolean" },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "pass": { "type": "boolean" },
+              "score": { "type": "number" },
+              "threshold": { "type": "number" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
