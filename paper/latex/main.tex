@@ -926,8 +926,12 @@ this manuscript:
     generation, and copy editing. All outputs were reviewed and verified 
     by human authors.
     
-    \item \textbf{GPT-4 (OpenAI)}: Used as the agent in experimental 
-    evaluation. Prompts and outputs are included in the supplementary material.
+    \item \textbf{DeepSeek-chat}: Used as the primary agent in experimental 
+    evaluation for cohort SQL generation. Achieved 100\% execution success 
+    on mortality (50,920 patients) and AKI (53,710 patients) cohorts.
+    
+    \item \textbf{GPT-4 (OpenAI)}: Used for supplementary experiments and 
+    baseline comparison.
     
     \item \textbf{GitHub Copilot}: Used for code completion during 
     implementation of the rubric-gates library.
@@ -1030,19 +1034,61 @@ rubric_suite:
 \section{Experimental Details}
 \label{app:experiments}
 
+\subsection{Datasets}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lrrr@{}}
+        \toprule
+        \textbf{Dataset} & \textbf{Patients} & \textbf{Admissions} & \textbf{ICU Stays} \\
+        \midrule
+        MIMIC-IV v2.2 & 299,712 & 431,231 & 73,181 \\
+        eICU-CRD v2.0 & 139,367 & --- & 200,859 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Dataset statistics for anchor datasets used in experiments.}
+\end{table}
+
+\subsection{Validated Cohort Results}
+
+The following cohorts were successfully generated and validated using the 
+Rubric Gates framework with DeepSeek-chat:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{ICU Mortality Cohort}: 50,920 patients (adults, first ICU stay)
+    \item \textbf{AKI Cohort}: 53,710 patients (creatinine $>$ 2.0 mg/dL)
+\end{itemize}
+
+All generated SQL executed successfully against the full MIMIC-IV dataset 
+via DuckDB, with results matching expected ranges defined in Tier 3 rubrics.
+
 \subsection{Prompts}
 
-Agent prompts are available in the supplementary material repository.
+Agent prompts are available in the supplementary material repository at:
+\url{https://github.com/Medtwin-ai/rubric-gates/tree/main/experiments}
 
 \subsection{Compute Resources}
 
-Experiments were run on AWS EC2 (c5.4xlarge) with:
+Experiments were run on AWS EC2 with:
 \begin{itemize}[noitemsep]
-    \item 16 vCPUs, 32 GB RAM
-    \item DuckDB 0.9.2 for SQL execution
-    \item Python 3.11 for analysis code
+    \item Instance: t3.large (2 vCPU, 4 GB RAM) for quick tests
+    \item Storage: 500 GB EBS for dataset storage
+    \item DuckDB 1.4.4 for SQL execution against compressed CSV
+    \item Python 3.10 for analysis code
+    \item DeepSeek API for LLM inference
 \end{itemize}
 
-Total compute time: approximately 48 hours for full benchmark suite.
+Execution time per cohort: 5--90 seconds depending on table sizes.
+
+\subsection{Reproducibility}
+
+All code, rubrics, and experimental scripts are available at:
+\begin{itemize}[noitemsep]
+    \item Public: \url{https://github.com/Medtwin-ai/rubric-gates}
+    \item Benchmark harness: \texttt{experiments/run\_real\_benchmarks.py}
+    \item Reference SQL: \texttt{benchmarks/cohorts/*.sql}
+\end{itemize}
+
+PhysioNet credentialing is required for dataset access.
 
 \end{document}
