@@ -19,7 +19,7 @@ venv/
 dist/
 build/
 
-# Local datasets / artifacts (never commit)
-datasets/
-artifacts/
+# Local datasets / artifacts (never commit large data)
+/datasets/
+/artifacts/
 

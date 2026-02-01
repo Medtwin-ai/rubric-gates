@@ -1,0 +1,14 @@
+{
+  "provenance": {
+    "audit_trace_id": "trace_example_001",
+    "run_manifest_id": "manifest_example_001"
+  },
+  "features": {
+    "age": {"unit": "years"},
+    "weight": {"unit": "kg"},
+    "heart_rate": {"unit": "bpm"}
+  },
+  "index_time": "2024-01-01T00:00:00Z",
+  "sql_executed": true,
+  "cohort_jaccard": 0.85
+}

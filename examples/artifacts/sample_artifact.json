@@ -1,0 +1,7 @@
+{
+  "type": "cohort_spec",
+  "version": "1.0.0",
+  "hash": "sha256:abc123def456",
+  "deterministic_executor": "duckdb+sql",
+  "inputs_summary": "De-identified clinical data from MIMIC-IV"
+}
