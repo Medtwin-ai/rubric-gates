@@ -23,7 +23,14 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+# Use a compatible validator - try newer version first, fall back to older
+try:
+    from jsonschema import Draft202012Validator as Validator
+except ImportError:
+    try:
+        from jsonschema import Draft7Validator as Validator
+    except ImportError:
+        from jsonschema import Draft4Validator as Validator
 
 
 @dataclasses.dataclass(frozen=True)
@@ -53,7 +60,7 @@ def verify_certificate(certificate: dict[str, Any], artifact_path: str | None = 
     errors: list[str] = []
 
     schema = _load_certificate_schema()
-    validator = Draft202012Validator(schema)
+    validator = Validator(schema)
 
     schema_errors = sorted(validator.iter_errors(certificate), key=lambda e: list(e.absolute_path))
     for error in schema_errors:
